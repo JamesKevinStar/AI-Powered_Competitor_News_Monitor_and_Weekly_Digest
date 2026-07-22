@@ -36,7 +36,7 @@ If both sources fail, a fallback email is sent to notify that no valid headlines
 ## Prompts
 The prompt used in the OpenAI node:
 
-
+```text
 You are an assistant that analyzes news headlines about AI and automation.
 
 From this list of 20 headlines:
@@ -50,14 +50,7 @@ Return exactly 5 key takeaways in the following format, each with:
 - "comment": a short sentence (max 25 words)
 
 Output only valid in the given format. Do not use JSON, arrays, brackets, quotes, or any other structure. And do not respond with anything else.
-
-
-
-
-
- 
-
-
+```
 
 ## Sample Output
 The email contains an HTML digest with 5 headlines and short comments, under the title **Weekly Digest – AI & Automation**.
