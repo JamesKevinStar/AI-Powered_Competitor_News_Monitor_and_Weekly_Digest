@@ -21,16 +21,16 @@ It fetches news from:
 - [TensorFeed](https://tensorfeed.ai/api/news)  
 - [VentureBeat](https://venturebeat.com/feed/)  
 
-If both sources fail, a fallback email is sent notifying that no valid headlines were found that week.
+If both sources fail, a fallback email is sent to notify that no valid headlines were found that week.
 
 ![n8n](Images/n8n_Workflow.png)
 
 ## Methodology
 1. **Data Collection**: HTTP Request and RSS Feed nodes.  
 2. **Validation**: Guardrails nodes to filter content.  
-3. **Processing**: Code nodes to merge titles and normalize data.  
-4. **Insight Generation**: OpenAI node with GPT‑5.1, configured to return exactly 5 takeaways in `Title — Comment` format.  
-5. **Formatting**: Code node builds a clean HTML digest.  
+3. **Processing**: Code nodes merge titles and normalize data.  
+4. **Insight Generation**: OpenAI node with GPT‑5.1 returns exactly 5 takeaways in `Title — Comment` format.  
+5. **Formatting**: Code node builds a simple HTML digest.  
 6. **Delivery**: Gmail node sends the digest email.
 
 ## Prompts
@@ -64,15 +64,15 @@ The email contains an HTML digest with 5 headlines and short comments, under the
 
 ![Email Exito](Images/Envio_Exitoso.png)
 
-But, if there isno data found in the requests, the email sended will be:
+If there is no data found in the requests, the email sent will be:
 
 ![Email Fallo](Images/Envio_Fallido.png)
 
 ## Results 
-- The data request was obtained with no troubles, and was normalized in a unique format.
-- The prompt used to the AI model was accurate to obtain a satisfactory outcome.
-- The email sent was not decision of the AI model.
-- Could be created a n8n workflow that delivers an email with the latest news in a determinate field.
+- The data requests were obtained and normalized into one format.
+- The AI prompt was accurate and produced a good result.
+- The decision to send the email in HTML format was made by the workflow logic, not by the AI model.
+- The workflow can deliver an email with the latest news in a chosen field.
 
 ## Conclusion 
-The workflow was created verifying if the data requested is not infected, and the decision of the email was not given to the model, because it could generate different HTML formats.
+The workflow validates the requested data and controls the email logic outside the AI model. This avoids inconsistent HTML formats and ensures a stable weekly digest.
