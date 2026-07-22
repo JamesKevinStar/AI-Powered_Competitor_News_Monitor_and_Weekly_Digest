@@ -11,6 +11,8 @@ The goal is to provide a clear and professional summary of 5 key insights every 
 - [Methodology](#methodology)
 - [Prompts](#prompts)
 - [Sample Output](#sample-output)
+- [Results](#results)
+- [Conclusion](#conclusion)
 
 ## Workflow
 The workflow runs every Monday at 9 AM using a **Schedule Trigger**.  
@@ -32,7 +34,22 @@ If both sources fail, a fallback email is sent notifying that no valid headlines
 6. **Delivery**: Gmail node sends the digest email.
 
 ## Prompts
-Example prompt used in the OpenAI node:
+The prompt used in the OpenAI node:
+
+
+You are an assistant that analyzes news headlines about AI and automation.
+
+From this list of 20 headlines:
+
+
+{{ $json.titles }}
+
+
+Return exactly 5 key takeaways in the following format, each with:
+- "title": a short phrase (max 10 words)
+- "comment": a short sentence (max 25 words)
+
+Output only valid in the given format. Do not use JSON, arrays, brackets, quotes, or any other structure. And do not respond with anything else.
 
 
 
@@ -45,16 +62,17 @@ Example prompt used in the OpenAI node:
 ## Sample Output
 The email contains an HTML digest with 5 headlines and short comments, under the title **Weekly Digest – AI & Automation**.
 
-![Email Exito](Image/Envio_Exitoso.png)
+![Email Exito](Images/Envio_Exitoso.png)
 
 But, if there isno data found in the requests, the email sended will be:
 
-![Email Fallo](Image/Envio_Fallido.png)
+![Email Fallo](Images/Envio_Fallido.png)
 
-## Resultados 
-- Se identificó los patrones de comportamiento de compra de los clientes.
-- Se clasificó a los clientes en diferentes grupos según su valor monetario, frecuencia de compra y recencia.
-- También se determinó qué acciones realizar para cada grupo de clientes.
+## Results 
+- The data request was obtained with no troubles, and was normalized in a unique format.
+- The prompt used to the AI model was accurate to obtain a satisfactory outcome.
+- The email sent was not decision of the AI model.
+- Could be created a n8n workflow that delivers an email with the latest news in a determinate field.
 
-## Conclusión 
-El análisis de datos permitió clasificar a los clientes en grupos distintos, lo cual puede ayudar a diseñar diferentes estrategias para atraer o mantener a los clientes.
+## Conclusion 
+The workflow was created verifying if the data requested is not infected, and the decision of the email was not given to the model, because it could generate different HTML formats.
