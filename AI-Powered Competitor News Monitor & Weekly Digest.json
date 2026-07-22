@@ -1,0 +1,497 @@
+{
+  "name": "AI-Powered Competitor News Monitor & Weekly Digest",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "6592e4bb-1b7e-4131-94b9-be1fa252ea9d",
+      "name": "Schedule Trigger Monday 9 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1280,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://tensorfeed.ai/api/news",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "d6956269-0577-4841-a901-5104c681cfb3",
+      "name": "HTTP Request TensorFeed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1088,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://venturebeat.com/feed/",
+        "options": {}
+      },
+      "id": "bb48cd63-a26a-4f7b-9951-f1567b415a74",
+      "name": "RSS Read VentureBeat",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -1088,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.articles }}",
+        "guardrails": {}
+      },
+      "id": "49180800-927a-42e3-8096-3c7fde73abe4",
+      "name": "Guardrails TensorFeed",
+      "type": "@n8n/n8n-nodes-langchain.guardrails",
+      "typeVersion": 2,
+      "position": [
+        -896,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.content }}",
+        "guardrails": {}
+      },
+      "id": "b1aedaf1-6d9a-4cb4-a0f9-78df6656fed5",
+      "name": "Guardrails VentureBeat",
+      "type": "@n8n/n8n-nodes-langchain.guardrails",
+      "typeVersion": 2,
+      "position": [
+        -896,
+        112
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -704,
+        -144
+      ],
+      "id": "95c0d6a5-8d11-4a4f-9678-b3ca9a3c32e5",
+      "name": "Obtain Fails"
+    },
+    {
+      "parameters": {
+        "language": "pythonNative",
+        "pythonCode": "count = len(_items)\n\nformat = [{\n        \"json\": {\n            \"fail_count\": count\n        }\n    }]\n\nreturn format"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -512,
+        -16
+      ],
+      "id": "ae163e38-b031-47f1-ba93-b7ef6824d21a",
+      "name": "Count Fails"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "baca8849-0535-4ef9-bc52-8b08ad1be08d",
+              "leftValue": "={{ $json.fail_count }}",
+              "rightValue": 2,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -320,
+        -16
+      ],
+      "id": "2a04b85c-8142-47e6-b3b2-e8082fec6307",
+      "name": "If Both Fail"
+    },
+    {
+      "parameters": {
+        "sendTo": "jameskevinstar.1@gmail.com",
+        "subject": "No AI & Automation News This Week",
+        "message": "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#f5f5f5;padding:20px 0;\">   <tr>     <td align=\"center\">       <table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#222222;\">                  <tr>           <td style=\"padding:20px 25px 10px 25px;border-bottom:1px solid #eeeeee;\">             <h1 style=\"margin:0;font-size:22px;font-weight:bold;color:#111111;\">               Weekly Digest – AI & Automation             </h1>             <p style=\"margin:10px 0 0 0;font-size:13px;color:#555555;\">               This week no valid headlines were found to generate the digest.             </p>           </td>         </tr>          <tr>           <td style=\"padding:20px 25px 20px 25px;\">             <p style=\"margin:0;font-size:14px;color:#777777;line-height:1.5;\">               We will send you new key insights in the next digest.                 In the meantime, feel free to check your favorite news sources directly to stay updated.             </p>           </td>         </tr>          <tr>           <td style=\"padding:15px 25px 25px 25px;border-top:1px solid #eeeeee;\">             <p style=\"margin:0;font-size:12px;color:#999999;line-height:1.4;\">               Note: this message is automatically generated when no headlines are available.             </p>           </td>         </tr>        </table>     </td>   </tr> </table>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -128,
+        -16
+      ],
+      "id": "3155801c-c64a-4ebd-b7a7-5f8aae2e8608",
+      "name": "Send Fail Message",
+      "webhookId": "80f79f40-f141-4d52-902f-124345a8cbb9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "507avaWsuuksHwtb",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -512,
+        -272
+      ],
+      "id": "245343cd-3637-4702-8b40-4d10b51b0688",
+      "name": "Obtain Valid Data"
+    },
+    {
+      "parameters": {
+        "language": "pythonNative",
+        "pythonCode": "titles = []\n\nfor item in _items[0:20]:\n  titles.append(item[\"json\"][\"title\"])\n\njoined = \" \\n\".join(titles)\n\nreturn [{\"json\": {\"titles\": joined}}]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        -272
+      ],
+      "id": "00e65a3a-af32-4294-b823-1850f2296023",
+      "name": "Merge Titles"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "GPT-5.1"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=You are an assistant that analyzes news headlines about AI and automation.\n\nFrom this list of 20 headlines:\n\n\n{{ $json.titles }}\n\n\nReturn exactly 5 key takeaways in the following format, each with:\n- \"title\": a short phrase (max 10 words)\n- \"comment\": a short sentence (max 25 words)\n\nOutput only valid in the given format. Do not use JSON, arrays, brackets, quotes, or any other structure. And do not respond with anything else."
+            }
+          ]
+        },
+        "simplify": false,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        -128,
+        -272
+      ],
+      "id": "0a1e260e-7063-47ec-94f7-4c483eaf0257",
+      "name": "Extract Takeaways",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "jameskevinstar.1@gmail.com",
+        "subject": "Latest News about AI & Automation!",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "id": "02262a54-62b2-4272-9d49-a66e53b69544",
+      "name": "Send Message",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        384,
+        -272
+      ],
+      "webhookId": "e2fbb9d7-60a0-4b28-83f4-76f5bae383b0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "507avaWsuuksHwtb",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "language": "pythonNative",
+        "pythonCode": "output = []\n\nfor article in _items[0][\"json\"][\"guardrailsInput\"]:\n  normalized = {\n    \"title\": article.get(\"title\")\n    #\"url\": article.get(\"url\"), No necessary\n    #\"source\": article.get(\"source\"), No necessary\n    #\"publishedAt\": article.get(\"publishedAt\") No necessary\n  }\n\n  output.append({\"json\": normalized})\n\nreturn output"
+      },
+      "id": "2e478ed0-da62-41c8-bcf6-684f8703d410",
+      "name": "Normalize TensorFeed",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -704,
+        -400
+      ]
+    },
+    {
+      "parameters": {
+        "language": "pythonNative",
+        "pythonCode": "output = []\n\nfor item in _items[1:]:\n\n  html_content = item[\"json\"][\"guardrailsInput\"]\n  \n  start_title = html_content.find(\"<p>\")\n  end_title = html_content.find(\"</p>\", start_title)\n  \n  if start_title != -1 and end_title != -1:\n    title = html_content[start_title+3:end_title].strip()\n  else:\n    title = \"No title\"\n\n  normalized = {\n    \"title\": title\n  }\n\n  output.append({\"json\": normalized})\n\nreturn output"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -704,
+        112
+      ],
+      "id": "06a89745-434c-4523-9559-7c256c10a8a9",
+      "name": "Normalize VentureBeat"
+    },
+    {
+      "parameters": {
+        "language": "pythonNative",
+        "pythonCode": "output = []\n\nraw_text = _items[0][\"json\"][\"output\"][0][\"content\"][0][\"text\"]\n\nlines = []\nfor line in raw_text.split(\"\\n\"):\n  if line.strip():\n    lines.append(line.strip())\n\nhtml_sections = \"\"\ntitle = \"\"\ncomment = \"\"\n\nfor i, line in enumerate(lines, start = 1):\n  if line.lower().startswith(\"title:\"):\n    title = line.replace(\"title:\", \"\").strip()\n  elif line.lower().startswith(\"comment:\"):\n    comment = line.replace(\"comment:\", \"\").strip()\n\n    html_sections += f\"\"\"\n      <tr>\n        <td style=\"padding:10px 25px;\">\n          <h2 style=\"margin:0 0 8px 0;font-size:16px;color:#111111;\">\n            {i//2}. {title}\n          </h2>\n          <p style=\"margin:0;font-size:13px;line-height:1.5;\">\n            {comment}\n          </p>\n        </td>\n      </tr>\n    \"\"\"\n    \n    title = \"\"\n    comment = \"\"\n\n# Template HTML\nhtml_template = f\"\"\"\n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#f5f5f5;padding:20px 0;\">\n  <tr>\n    <td align=\"center\">\n      <table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background-color:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#222222;\">\n        <tr>\n          <td style=\"padding:20px 25px 10px 25px;border-bottom:1px solid #eeeeee;\">\n            <h1 style=\"margin:0;font-size:22px;font-weight:bold;color:#111111;\">\n              Weekly Digest – AI & Automation\n            </h1>\n            <p style=\"margin:10px 0 0 0;font-size:13px;color:#555555;\">\n              Here are 5 key insights from recent headlines.\n            </p>\n          </td>\n        </tr>\n        {html_sections}\n      </table>\n    </td>\n  </tr>\n</table>\n\"\"\"\n\noutput.append({\"json\": {\"html\": html_template}})\nreturn output"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        -272
+      ],
+      "id": "aa3245b0-64f6-4b06-8c69-a5ef7eb4afb8",
+      "name": "Format Answer"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger Monday 9 AM": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request TensorFeed",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read VentureBeat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request TensorFeed": {
+      "main": [
+        [
+          {
+            "node": "Guardrails TensorFeed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read VentureBeat": {
+      "main": [
+        [
+          {
+            "node": "Guardrails VentureBeat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardrails TensorFeed": {
+      "main": [
+        [
+          {
+            "node": "Normalize TensorFeed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Obtain Fails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardrails VentureBeat": {
+      "main": [
+        [
+          {
+            "node": "Normalize VentureBeat",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Obtain Fails",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Obtain Fails": {
+      "main": [
+        [
+          {
+            "node": "Count Fails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Count Fails": {
+      "main": [
+        [
+          {
+            "node": "If Both Fail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Both Fail": {
+      "main": [
+        [
+          {
+            "node": "Send Fail Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Fail Message": {
+      "main": [
+        []
+      ]
+    },
+    "Obtain Valid Data": {
+      "main": [
+        [
+          {
+            "node": "Merge Titles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Titles": {
+      "main": [
+        [
+          {
+            "node": "Extract Takeaways",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Takeaways": {
+      "main": [
+        [
+          {
+            "node": "Format Answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize TensorFeed": {
+      "main": [
+        [
+          {
+            "node": "Obtain Valid Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize VentureBeat": {
+      "main": [
+        [
+          {
+            "node": "Obtain Valid Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Send Message": {
+      "main": [
+        []
+      ]
+    },
+    "Format Answer": {
+      "main": [
+        [
+          {
+            "node": "Send Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "edbb0cbd-4677-43cb-8c0d-ab56a56d4229",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8fb4a58aefd95ed48d6f0c6511e7f82bc0665e28f6d7e18cf5be9b9f742ef312"
+  },
+  "nodeGroups": [],
+  "id": "k6p4zUFsGFCLxbyu",
+  "tags": []
+}
